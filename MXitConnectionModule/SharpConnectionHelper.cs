@@ -1,4 +1,8 @@
-﻿using System;
+﻿/// Mxit-Net-Connection-Helper
+/// Author: Eric Clements (Kazazoom) - eric@kazazoom.com
+/// License: BSD-3 (https://github.com/Kazazoom/mxit-net-connection-helper/blob/master/license.txt)
+
+using System;
 using System.Configuration;
 using System.Reflection;
 using System.Threading;
@@ -17,6 +21,15 @@ using MXit.User;
 
 namespace MXitConnectionModule
 {
+    /// <summary>
+    /// This singleton will manage C# API connections for you. It will do re-connection and retry logic transparently. 
+    /// Call it from your Controller Class Start method with:
+    ///     MXitConnectionModule.ExternalAppAPI.CommsCallback callback = new Callback();
+    ///     MXitConnectionModule.ConnectionManager.Instance.InitializeConnection(externalAppNameTemp, externalAppPasswordTemp, callback);
+    /// 
+    /// And where you want to send a message, simply call:
+    ///     MXitConnectionModule.ConnectionManager.Instance.SendMessage((MessageToSend)message);
+    /// </summary>
     class SharpConnectionHelperSingleton
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SharpConnectionHelperSingleton));
@@ -234,7 +247,7 @@ namespace MXitConnectionModule
             else
             {
                 //isTestMode:
-                return (new UserInfo("27832919456", "eric", DateTime.Now, "ZA", "ZA", "Johannesburg", DeviceInfo.DefaultDevice, GenderType.Male, "ZA"));
+                return (new UserInfo("yourmxitid", "yourname", DateTime.Now, "ZA", "ZA", "Johannesburg", DeviceInfo.DefaultDevice, GenderType.Male, "ZA"));
             }
         }
 

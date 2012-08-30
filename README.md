@@ -1,16 +1,21 @@
-### Welcome to the *MxitConnectionHelper 1.0.0* Release!
+### Welcome to the *MxitConnectionHelper 2.0.0* Release!
 
 [MxitConnectionHelper](https://github.com/Kazazoom/mxit-net-connection-helper)
 is a C# helper for Mxit that takes care of connection handling and reconnection
-logic for C# based Mxit Applications.
+logic for C# based Mxit Applications. Since version 2, the Helper also includes
+REST API support. 
 
 ## RELEASE INFORMATION
 
-*MxitConnectionHelper 1.0.0*
+*MxitConnectionHelper 2.0.0*
 
 30 August 2012
 
-This is the first stable release of this helper.
+This is the second version of this module. With version 2.0.0 we have included
+support for REST Authentication as well as the REST Messaging API, specifically
+the REST /message/send feature. See the description of the 
+SharpConnectionHelper.cs or RESTConnectionHelper.cs classes for descriptions of
+how to use this helper module.
 
 ### VERSIONING
 
