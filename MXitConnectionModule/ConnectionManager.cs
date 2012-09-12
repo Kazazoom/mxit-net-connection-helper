@@ -80,6 +80,8 @@ namespace MXitConnectionModule
         public void InitializeConnection(string appName, string appPassword, ExternalAppAPI.CommsCallback callback)
         {
             SharpConnectionHelperSingleton.Instance.InitializeConnection(appName, appPassword, callback);
+
+            QueueHelper_OutgoingMessage.Instance.StartQueueHandlers();
         }
 
         public void Connect(ExternalAppAPI.CommsCallback callback)
@@ -107,5 +109,9 @@ namespace MXitConnectionModule
             return SharpConnectionHelperSingleton.Instance.RegisterImageStrip(name, image, frameWidth, frameHeight, layer);
         }
 
+        public bool EnqueueMessageToSend(MessageToSend item)
+        {
+            return QueueHelper_OutgoingMessage.Instance.EnqueueItem(item);
+        }
     }
 }
