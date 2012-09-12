@@ -226,15 +226,15 @@ namespace MXitConnectionModule
 
                 if (sentMessageOK)
                 {
-                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message to : " + rMessageToSend.To);
-                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to : " + rMessageToSend.To);
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message OK.");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to OK.");
 
                     success = true;
                 }
                 else // Something went wrong, we'll handle the error code in the calling wrapper method
                 {
                     logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestSendMessage Failed: (user:" + rMessageToSend.To + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
-                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage Failed: (user:" + rMessageToSend.To + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
 
                     responseCode = RESTResponse.StatusCode;
 
@@ -425,6 +425,73 @@ namespace MXitConnectionModule
                 logger.Error(MethodBase.GetCurrentMethod().Name + " - System Exception: " + e.ToString());
             }
         }
+
+        /*
+        public bool SendMessageFromFriendToFriend(String MxitUserID_From, String MxitUserID_To)
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            bool success = false;
+            responseCode = System.Net.HttpStatusCode.Unauthorized;//Need to improve this
+
+            try
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+
+                var client = new RestClient();
+
+                client.BaseUrl = "http://api.mxit.com";
+                client.Authenticator = new RESTMxitOAuth2Authenticator(this.REST_AccessToken);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+
+                var RESTRequest = new RestRequest();
+                RESTRequest.Method = Method.POST;
+                RESTRequest.RequestFormat = DataFormat.Json;
+                RESTRequest.AddHeader("Content-Type", "application/json");
+                RESTRequest.AddHeader("Accept", "application/json");
+                RESTRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
+
+                RESTRequest.AddBody(rMessageToSend);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
+
+                RestResponse RESTResponse = (RestResponse)client.Execute(RESTRequest);
+
+                //Set the out parameter, so that the calling method can redo auth if needed and retry:
+                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
+                bool sentMessageOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                if (sentMessageOK)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message OK.");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to OK.");
+
+                    success = true;
+                }
+                else // Something went wrong, we'll handle the error code in the calling wrapper method
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestSendMessage Failed: (user:" + rMessageToSend.To + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+
+                    responseCode = RESTResponse.StatusCode;
+
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Exception sending REST message:" + ex.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception sending REST message: " + ex.GetType() + " " + ex.ToString());
+                success = false;
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+            return success;
+        }
+        */
 
     }
 }
