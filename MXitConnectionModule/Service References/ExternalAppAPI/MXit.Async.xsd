@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/MXit.Async" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/MXit.Async" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="AsyncOperationInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Context" nillable="true" type="xs:anyType" />
+      <xs:element minOccurs="0" name="Result" type="tns:AsyncOperationResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AsyncOperationInfo" nillable="true" type="tns:AsyncOperationInfo" />
+  <xs:simpleType name="AsyncOperationResult">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Success" />
+      <xs:enumeration value="SystemError">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="AsyncOperationResult" nillable="true" type="tns:AsyncOperationResult" />
+</xs:schema>

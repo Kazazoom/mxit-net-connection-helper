@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="BWvkV6Jp+8hWL/tGp0+KwCEocgo=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="Vn3B2tO1GwVdddKeARqzQVE7QuE=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="netTcpBinding" name="NetTcpBinding_Comms">
       <properties>
@@ -212,10 +212,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="WSDualHttpBinding_Comms" contract="ExternalAppAPI.Comms" bindingType="wsDualHttpBinding" address="http://externalappapi.mxit.com:9153/ExternalAppAPI/Comms/" bindingConfiguration="WSDualHttpBinding_Comms">
+    <endpoint name="WSDualHttpBinding_Comms" contract="ExternalAppAPI.Comms" bindingType="wsDualHttpBinding" address="http://41.191.127.84:9153/ExternalAppAPI/Comms/" bindingConfiguration="WSDualHttpBinding_Comms">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://externalappapi.mxit.com:9153/ExternalAppAPI/Comms/</serializedValue>
+          <serializedValue>http://41.191.127.84:9153/ExternalAppAPI/Comms/</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -254,7 +254,7 @@
           <serializedValue>System.ServiceModel.Configuration.DnsElement</serializedValue>
         </property>
         <property path="/identity/dns/value" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>externalappapi.mxit.com</serializedValue>
+          <serializedValue>41.191.127.84</serializedValue>
         </property>
         <property path="/identity/rsa" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.RsaElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.RsaElement</serializedValue>
@@ -297,10 +297,10 @@
         </property>
       </properties>
     </endpoint>
-    <endpoint name="NetTcpBinding_Comms" contract="ExternalAppAPI.Comms" bindingType="netTcpBinding" address="net.tcp://externalappapi.mxit.com:9150/ExternalAppAPI/Comms/" bindingConfiguration="NetTcpBinding_Comms">
+    <endpoint name="NetTcpBinding_Comms" contract="ExternalAppAPI.Comms" bindingType="netTcpBinding" address="net.tcp://41.191.127.84:9150/ExternalAppAPI/Comms/" bindingConfiguration="NetTcpBinding_Comms">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>net.tcp://externalappapi.mxit.com:9150/ExternalAppAPI/Comms/</serializedValue>
+          <serializedValue>net.tcp://41.191.127.84:9150/ExternalAppAPI/Comms/</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -339,7 +339,7 @@
           <serializedValue>System.ServiceModel.Configuration.DnsElement</serializedValue>
         </property>
         <property path="/identity/dns/value" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>externalappapi.mxit.com</serializedValue>
+          <serializedValue>41.191.127.84</serializedValue>
         </property>
         <property path="/identity/rsa" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.RsaElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.RsaElement</serializedValue>
