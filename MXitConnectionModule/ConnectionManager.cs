@@ -67,9 +67,9 @@ namespace MXitConnectionModule
             SharpConnectionHelperSingleton.Instance.RequestPayment(paymentRequest);
         }
 
-        public UserInfo GetUser(String userID)
+        public bool GetUser(String userID, out UserInfo userInfo)
         {
-            return SharpConnectionHelperSingleton.Instance.GetUser(userID);
+            return SharpConnectionHelperSingleton.Instance.GetUser(userID, out userInfo);
         }
 
         public long? ConfirmPayment(int vendorId, String txRef)
@@ -112,6 +112,11 @@ namespace MXitConnectionModule
         public bool EnqueueMessageToSend(MessageToSend item)
         {
             return QueueHelper_OutgoingMessage.Instance.EnqueueItem(item);
+        }
+
+        public void RequestUserInfo(UserInfoRequest userInfoRequest)
+        {
+            SharpConnectionHelperSingleton.Instance.RequestUserInfo(userInfoRequest);
         }
     }
 }
