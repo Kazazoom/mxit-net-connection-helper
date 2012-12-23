@@ -115,6 +115,11 @@ namespace MXitConnectionModule
             {
                 try
                 {
+                    //if (logger.IsDebugEnabled)
+                    //{
+                    //    Console.WriteLine(DateTime.Now.ToString() + "Message:" + message.Body);
+                    //}
+
                     SharpConnectionHelperSingleton.Instance.client.SendMessage((MessageToSend)message);
 
                     success = true;
@@ -145,8 +150,8 @@ namespace MXitConnectionModule
                 }
                 catch (System.ServiceModel.CommunicationException ce)
                 {
-                    Console.WriteLine(DateTime.Now.ToString() + " Communication Exception. ");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Exception: " + ce.ToString());
+                    Console.WriteLine(DateTime.Now.ToString() + " Problem sending message to user: " + message.To);
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - Communication Exception: " + ce.ToString());
 
                     success = false;
                 }
@@ -210,45 +215,37 @@ namespace MXitConnectionModule
         /// <summary>
         /// The GetUser method, wrapped in logic that will reconnect if anything goes wrong/throws a comms exception
         /// </summary>
-        public UserInfo GetUser(String userID)
+        public bool GetUser(String MxitUserID, out UserInfo userInfo)
         {
-            //SHOULD PROBABLY PUT A TRY HERE
+            userInfo = null;
+            bool success = false;
+
             if (!isTestMode)
             {
                 try
                 {
-                    return this.client.GetUser(userID);
+                    userInfo = this.client.GetUser(MxitUserID);
+
+                    if (!String.IsNullOrEmpty(userInfo.UserId))
+                    {
+                        success = true;
+                    }
                 }
-                catch (System.TimeoutException te)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(DateTime.Now.ToString() + " Timeout Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Timeout Exception. Going to try to reconnect");
-                    return null;
-                }
-                catch (System.ServiceModel.CommunicationObjectAbortedException coae)
-                {
-                    Console.WriteLine(DateTime.Now.ToString() + " Communication Object Aborted Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Aborted Exception. Going to try to reconnect");
-                    return null;
-                }
-                catch (System.ServiceModel.CommunicationObjectFaultedException cofe)
-                {
-                    Console.WriteLine(DateTime.Now.ToString() + " Communication Object Faulted Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Faulted Exception. Going to try to reconnect");
-                    return null;
-                }
-                catch (System.ServiceModel.CommunicationException ce)
-                {
-                    Console.WriteLine(DateTime.Now.ToString() + " Communication Exception. ");
-                    logger.Error("[" + MethodBase.GetCurrentMethod().Name + "()] - Communication Exception: " + ce.ToString());
-                    return null;
+                    Console.WriteLine(DateTime.Now.ToString() + " Exception trying to get UserInfo from Mxit: " + MxitUserID);
+                    logger.Error("[" + MethodBase.GetCurrentMethod().Name + "()] - Problem getting userInfo from Mxit: " + ex.ToString());
+                    success = false;
                 }
             }
             else
             {
                 //isTestMode:
-                return (new UserInfo("yourmxitid", "yourname", DateTime.Now, "ZA", "ZA", "Johannesburg", DeviceInfo.DefaultDevice, GenderType.Male, "ZA"));
+                userInfo = new UserInfo("yourmxitid", "yourname", DateTime.Now, "ZA", "ZA", "Johannesburg", DeviceInfo.DefaultDevice, GenderType.Male, "ZA");
+                success = true;
             }
+
+            return success;
         }
 
         /// <summary>
@@ -669,6 +666,19 @@ namespace MXitConnectionModule
                 Console.WriteLine(DateTime.Now.ToString() + " Exception registering new image.");
                 logger.Error("[" + MethodBase.GetCurrentMethod().Name + "()] - Exception registering new image: " + ex.ToString());
                 return null;
+            }
+        }
+
+        public void RequestUserInfo(UserInfoRequest userInfoRequest)
+        {
+            try
+            {
+                Instance.client.RequestUserInfo(userInfoRequest);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Problem requesting userInfo for " + userInfoRequest.UserId + " for app " + userInfoRequest.ContactName);
+                logger.Error("[" + MethodBase.GetCurrentMethod().Name + " - System Exception requesting userInfo: " + e.ToString());
             }
         }
     }

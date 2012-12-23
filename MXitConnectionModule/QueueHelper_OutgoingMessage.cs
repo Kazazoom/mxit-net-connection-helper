@@ -45,7 +45,7 @@ namespace MXitConnectionModule
 
         public delegate bool outgoingDelegate(IMessageToSend messageToSend);
 
-        public void processRequestImmediately(IMessageToSend item)
+        public void addRequestToWorkerPool(IMessageToSend item)
         {
             workerThreadPool.AddWorkItem(new outgoingDelegate(ConnectionManager.Instance.SendMessage), item);
         }
@@ -75,14 +75,15 @@ namespace MXitConnectionModule
                         logger.Info(MethodBase.GetCurrentMethod().Name + "() - queue size: " + itemList.Count);
                     }
 
+                    IMessageToSend item = null;
+
                     lock (itemList)
                     {
                         try
                         {
                             //Fetch item from front of queue and request a thread from thread pool to process it
-                            IMessageToSend item = itemList.Dequeue();
-
-                            processRequestImmediately(item);
+                            item = itemList.Dequeue();
+                           
                         }
                         catch (Exception e)
                         {
@@ -90,6 +91,9 @@ namespace MXitConnectionModule
                         }
 
                     }
+
+                    if (item != null)
+                        addRequestToWorkerPool(item);
                 }
             }
 
@@ -147,6 +151,16 @@ namespace MXitConnectionModule
         public int getQueueSize()
         {
             return itemList.Count;
+        }
+
+        public int getWorkerPoolQueueSize()
+        {
+            return this.workerThreadPool.QueueLength;
+        }
+
+        public int getWorkerPoolThreadCount()
+        {
+            return this.workerThreadPool.TotalThreads;
         }
     }
 }
