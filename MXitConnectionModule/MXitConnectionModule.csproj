@@ -62,6 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionConfig.cs" />
+    <Compile Include="MxitProfile.cs" />
+    <Compile Include="MxitState.cs" />
     <Compile Include="QueueHelper_HTTP.cs" />
     <Compile Include="QueueHelper_OutgoingMessage.cs" />
     <Compile Include="RESTConnectionHelper.cs" />

@@ -1,0 +1,530 @@
+﻿/// Mxit-Net-Connection-Helper
+/// Author: Eric Clements (Kazazoom) - eric@kazazoom.com
+/// License: BSD-3 (https://github.com/Kazazoom/mxit-net-connection-helper/blob/master/license.txt)
+/// Credits: Based on RestSharp and Newtonsoft approach first drafted by George Ziady (Springfisher) - george@springfisher.com
+
+using System;
+using System.Configuration;
+using System.Reflection;
+using System.Threading;
+using System.ServiceModel;
+using System.Drawing;
+using System.Collections.Generic;
+using log4net;
+using MXit;
+using MXit.Messaging;
+using MXit.Messaging.MessageElements;
+using MXit.Billing;
+using MXit.User;
+using RestSharp;
+using Newtonsoft;
+using Newtonsoft.Json;
+using MXit.OAuth2;
+
+namespace MXitConnectionModule
+{
+    /// <summary>
+    /// This singleton will manage REST API connections for you. It will do authentication transparently. 
+    /// 
+    /// Please add the following line to your Controller and add this Project as a reference to your main project.
+    ///     using MXitConnectionModule;    
+    /// 
+    /// Call the following method your Controller Class Start method with:
+    ///     MXitConnectionModule.RESTConnectionHelper.Instance.InitializeAuthorizationValuesAndAuthenticate(clientID, clientSecret);
+    /// 
+    /// Where you want to send a message via the REST API, simply call:
+    ///     RESTMessageToSend rMessageToSend = new RESTMessageToSend("yourmobiappname", "Hello World"); //(From,Body);
+    ///     rMessageToSend.addMxitUserIDTo(toMxitUserID); //Add users using this method as it allows you to specify more than one user
+    ///     bool result = RESTConnectionHelper.Instance.SendMessage(rMessageToSend);
+    ///     
+    /// You can also use the Mxit ExternalAppAPI SDK messageToSend class, for example:
+    ///     MessageToSend messageToSend = messageReceived.CreateReplyMessage();
+    ///     messageToSend.Append("Hello World", Color.Red, TextMarkup.Bold);
+    ///     RESTConnectionHelper.Instance.SendMessage(messageToSend);
+    /// 
+    /// </summary>
+    public class RESTConnectionHelper
+    {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(RESTConnectionHelper));
+
+        private String REST_ClientId;
+        private String REST_ClientSecret;
+
+        private String REST_grant_type = "client_credentials";
+        private String REST_scope = "message/send profile/private profile/public graph/read";
+        private String REST_AccessToken;
+
+        private String REST_Auth_BaseUrl = "https://auth.mxit.com";
+        private String REST_API_BaseUrl = "http://api.mxit.com";
+
+        private bool isReAuthenticating; //Needed when we want to check that we aren't already busy re-authenticating in another thread
+        private int retryAuthCount = 3; //How many times to retry authentication
+        private int retryAuthTimeMs = 5 * 1000; //How long to wait between retries. 
+
+        private static volatile RESTConnectionHelper instance;
+        private static object syncRoot = new Object();
+
+        private RESTConnectionHelper()
+        {
+        }
+
+        /// <summary>
+        /// The instance through which the Singleton is accessed
+        /// </summary>
+        public static RESTConnectionHelper Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (instance == null)
+                            instance = new RESTConnectionHelper();
+                    }
+                }
+
+                return instance;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets a value indicating whether an accessToken has already been requested.
+        /// </summary>
+        public bool IsAccessTokenAvailable
+        {
+            get
+            {
+                lock (this)
+                {
+                    bool isAccessTokenAvailable = (!String.IsNullOrEmpty(this.REST_AccessToken));
+                    return isAccessTokenAvailable;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sometimes we need to check if we are already reconnecting so that we dont start reconnecting again
+        /// </summary>
+        public bool IsReAuthenticating
+        {
+            get
+            {
+                return isReAuthenticating;
+            }
+        }
+
+        public bool SendMessage(MessageToSend messageToSend)
+        {
+            MXitConnectionModule.RESTMessageToSend RESTMessageToSend = new RESTMessageToSend(messageToSend);
+            return this.SendMessage(RESTMessageToSend);
+        }
+
+        public bool SendMessage(RESTMessageToSend restMessageToSend)
+        {
+            bool success = false;
+
+            System.Net.HttpStatusCode responseCode;
+            bool sentMessageOK = false;
+
+            sentMessageOK = SendMessage(restMessageToSend, out responseCode);
+
+            if (sentMessageOK) // If all went well sending the message
+            {
+                success = true;
+            }
+            else // If something went wrong sending the message (sentMessagOK == false)
+            {
+                bool isRetryableError = true;//((responseCodeReceived == ) || (responseCodeReceived == System.Net.HttpStatusCode.));
+                bool isAuthenticationExpired = (responseCode == System.Net.HttpStatusCode.Unauthorized);
+
+                if (isRetryableError)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - SendMessage Failed, retry sending...");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " SendMessage Failed, retry sending...");
+
+                    bool reauthenticationSuccess = false;
+                    if (isAuthenticationExpired)
+                    {
+                        // was an expired error, so lets re-authenticate:
+                        reauthenticationSuccess = this.doRESTAuthentication();
+
+                        if (reauthenticationSuccess)
+                        {
+                            if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Redoing authentication...");
+                            sentMessageOK = SendMessage(restMessageToSend, out responseCode);
+                        }
+                    }
+                    else // Was an internal error, so lets just retry sending the message:
+                    {
+                        sentMessageOK = SendMessage(restMessageToSend, out responseCode);
+                    }
+                    
+
+                    if (sentMessageOK)
+                    {
+                        if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Managed to send message after retry.");
+
+                        success = true;
+                    }
+                    else
+                    {
+                        logger.Error(MethodBase.GetCurrentMethod().Name + "() - Could not send message even after retry.");
+                        if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Could not send message even after retry.");
+                    }
+                }
+                else //Not a retryable error
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - Could not send message due to non retryable error: " + responseCode);
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Could not send message due to non retryable error: " + responseCode);
+                }
+            }
+
+            return success;
+        }
+
+
+        /// <summary>
+        /// The sendMessage method
+        /// </summary>
+        public bool SendMessage(RESTMessageToSend rMessageToSend, out System.Net.HttpStatusCode responseCode)
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            bool success = false;
+            responseCode = System.Net.HttpStatusCode.Unauthorized;//Need to improve this
+
+            try
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+
+                var client = new RestClient();
+
+                client.BaseUrl = "http://api.mxit.com";
+                client.Authenticator = new RESTMxitOAuth2Authenticator(this.REST_AccessToken);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+
+                var REST_SendMessageRequest = new RestRequest();
+                REST_SendMessageRequest.Method = Method.POST;
+                REST_SendMessageRequest.RequestFormat = DataFormat.Json;
+                REST_SendMessageRequest.AddHeader("Content-Type", "application/json");
+                REST_SendMessageRequest.AddHeader("Accept", "application/json");
+                REST_SendMessageRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
+
+                REST_SendMessageRequest.AddBody(rMessageToSend);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
+
+                RestResponse RESTResponse = (RestResponse)client.Execute(REST_SendMessageRequest);
+
+                //Set the out parameter, so that the calling method can redo auth if needed and retry:
+                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
+                bool sentMessageOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                if (sentMessageOK)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message OK.");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to OK.");
+
+                    success = true;
+                }
+                else // Something went wrong, we'll handle the error code in the calling wrapper method
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestSendMessage Failed: (user:" + rMessageToSend.To + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+
+                    responseCode = RESTResponse.StatusCode;
+
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Exception sending REST message:" + ex.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception sending REST message: " + ex.GetType() + " " + ex.ToString());
+                success = false;
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+            return success;
+        }
+
+
+        /// <summary>
+        /// Connect to the MXit API Server with suppplied clientId and clientSecret
+        /// </summary>
+        public bool InitializeAuthorizationValuesAndAuthenticate(String aClientID, String aClientSecret)
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+
+            bool success = false;
+            this.REST_AccessToken = "";
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() Setting up REST authentication values (ClientID=" + aClientID + "), (ClientSecret=" + aClientSecret + ").");
+            Console.WriteLine(DateTime.Now.ToString() + "Setting up REST authentication values (ClientID=" + aClientID + "), (ClientSecret=" + aClientSecret + ").");
+
+            this.REST_ClientId = aClientID;
+            this.REST_ClientSecret = aClientSecret;
+
+            this.doRESTAuthentication();
+
+            if (this.IsAccessTokenAvailable)
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() Received authentication token: " + this.REST_AccessToken);
+                Console.WriteLine(DateTime.Now.ToString() + " Received authentication token: " + this.REST_AccessToken);
+
+                success = true;
+            }
+            else
+            {
+                success = false;
+            }
+
+            logger.Debug("[" + MethodBase.GetCurrentMethod().Name + "()] - END");
+
+            return success;
+        }
+
+        /// <summary>
+        /// Connection workflow logic with backoff time of 60s
+        /// </summary>
+        private bool doRESTAuthentication()
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            
+            bool success = false;
+            this.REST_AccessToken = "";
+
+            lock (this)
+            {
+                isReAuthenticating = true;
+                // Already connected
+                //if (this.IsAccessTokenAvailable)
+                //{
+                    //throw new InvalidOperationException("Already connected.");
+                //}
+
+                bool isAuthenticated = false;
+                bool isFirstTime = true;
+                int tryCounter = 0;
+
+                while (!isAuthenticated && (tryCounter < this.retryAuthCount))
+                {
+                    try
+                    {
+                        if (!isFirstTime)
+                        {
+                            logger.Debug("" + MethodBase.GetCurrentMethod().Name + "()] Waiting for "+this.retryAuthTimeMs+"ms before retrying REST Auth.");
+                            Console.WriteLine(DateTime.Now.ToString() + " Waiting for " + this.retryAuthTimeMs + "ms before retrying REST Auth.");
+                            Thread.Sleep(this.retryAuthTimeMs);
+                        }
+
+                        logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                        Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+
+                        /* See http://restsharp.org/ for more info about the following authentication flow logic:
+                        */
+
+                        var client = new RestClient();
+                        client.BaseUrl = this.REST_Auth_BaseUrl;
+
+                        logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating HttpBasicAuthenticator...");
+                        Console.WriteLine(DateTime.Now.ToString() + " Creating HttpBasicAuthenticator...");
+
+                        //connect using the Client ID and Client Secret provided on the code.mxit.com Dashboard
+                        client.Authenticator = new HttpBasicAuthenticator(this.REST_ClientId, this.REST_ClientSecret);
+
+                        logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest..");
+                        Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+
+                        var RESTRequest = new RestRequest();
+                        RESTRequest.Resource = "/token";
+                        RESTRequest.Method = Method.POST;
+
+                        //Always "client_credentials" (http://dev.mxit.com/docs/authentication)
+                        Parameter parameter1 = new Parameter();
+                        parameter1.Name = "grant_type";
+                        parameter1.Value = this.REST_grant_type;
+                        parameter1.Type = ParameterType.GetOrPost;
+                        RESTRequest.Parameters.Add(parameter1);
+
+                        //The list of scopes which you are requesting access to. (http://dev.mxit.com/docs/authentication)
+                        Parameter parameter2 = new Parameter();
+                        parameter2.Name = "scope";
+                        parameter2.Value = this.REST_scope;
+                        parameter2.Type = ParameterType.GetOrPost;
+                        RESTRequest.Parameters.Add(parameter2);
+
+                        logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RestRequest...");
+                        Console.WriteLine(DateTime.Now.ToString() + " Executing RestRequest...");
+
+                        RestResponse RESTResponse = (RestResponse)client.Execute(RESTRequest);
+
+                        //Deserialize the response string from the REST request, and convert to a Dictionary collection:
+                        Dictionary<string, string> RESTResponseDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(RESTResponse.Content);
+                        
+                        //Get the accessToken from the Dictionary:
+                        String receivedAccessToken = RESTResponseDict["access_token"];
+
+                        bool gotValidAccessToken = (!String.IsNullOrEmpty(receivedAccessToken));
+
+                        if (gotValidAccessToken)
+                        {
+                            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - AccessToken RECEIVED: " + receivedAccessToken);
+                            Console.WriteLine(DateTime.Now.ToString() + " AccessToken RECEIVED: " + receivedAccessToken);
+
+                            this.REST_AccessToken = receivedAccessToken;
+                            isAuthenticated = true;
+                            success = true;
+                        }
+                        else
+                        {
+                            logger.Error(MethodBase.GetCurrentMethod().Name + "() - AccessToken Empty!");
+                            Console.WriteLine(DateTime.Now.ToString() + " AccessToken Empty!");
+                            isAuthenticated = false;
+                            success = false;
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Problem authenticating against Mxit REST Service: " + ex.ToString());
+                        Console.WriteLine(DateTime.Now.ToString() + " Problem authenticating against Mxit REST Service, going to keep on trying");
+                        isFirstTime = false;
+                    }
+
+                    //Increment the try counter within the loop:
+                    tryCounter += 1;
+
+                    isFirstTime = false;
+
+                } //loop
+
+                logger.Debug("[" + MethodBase.GetCurrentMethod().Name + "()] - END");
+
+                isReAuthenticating = false;
+                
+            }//lock
+
+            return success;
+        }
+
+
+        public void RedirectRequest(MXit.Navigation.RedirectRequest redirectRequest)
+        {
+            try
+            {
+                //Todo
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " System Exception:" + e.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + " - System Exception: " + e.ToString());
+            }
+        }
+
+        public bool SendMessageFromFriendToFriend(String MxitUserID_From, String MxitUserID_To, String messageBody, out System.Net.HttpStatusCode responseCode)
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            bool success = false;
+            responseCode = System.Net.HttpStatusCode.Unauthorized;//Need to improve this
+
+            try
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+
+                var client = new RestClient();
+
+                client.BaseUrl = "http://api.mxit.com";
+                client.Authenticator = new RESTMxitOAuth2Authenticator(this.REST_AccessToken);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+
+                var RESTRequest = new RestRequest();
+                RESTRequest.Method = Method.POST;
+                RESTRequest.RequestFormat = DataFormat.Json;
+                RESTRequest.AddHeader("Content-Type", "application/json");
+                RESTRequest.AddHeader("Accept", "application/json");
+                RESTRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
+
+                RESTMessageToSend rMessageToSend = new RESTMessageToSend(MxitUserID_From, MxitUserID_To, messageBody);
+
+                RESTRequest.AddBody(messageBody);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
+
+                RestResponse RESTResponse = (RestResponse)client.Execute(RESTRequest);
+
+                //Set the out parameter, so that the calling method can redo auth if needed and retry:
+                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
+                bool sentMessageOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                if (sentMessageOK)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message OK.");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to OK.");
+
+                    success = true;
+                }
+                else // Something went wrong, we'll handle the error code in the calling wrapper method
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestSendMessage Failed: (user:" + messageBody.To + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+
+                    responseCode = RESTResponse.StatusCode;
+
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Exception sending REST message:" + ex.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception sending REST message: " + ex.GetType() + " " + ex.ToString());
+                success = false;
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+            return success;
+        }
+
+        public void ProcessOAuth2Token(TokenResponse tokenReceived)
+        {
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+
+            bool isTokenResultSuccess = (tokenReceived.Result == Async.AsyncOperationResult.Success);
+
+            if (isTokenResultSuccess) //We got a succesfull result:
+            {
+                bool isUserAllowed = (tokenReceived.AuthorizationResult == AuthorizationResult.Allow);
+                bool isUserAlwaysAllowed = (tokenReceived.AuthorizationResult == AuthorizationResult.AlwaysAllow);
+
+                if (isUserAllowed || isUserAlwaysAllowed) //We got permission:
+                {
+                    //Do something with the tokenReceived.AccessToken
+
+                }
+                else
+                {
+                    //Call a hook that will display a message to the user asking him to allow access to proceed.
+                }
+            }
+            else
+            {
+                //Some error occured.
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Token request was not succesfull: " + tokenReceived.Result);
+                logger.Error(MethodBase.GetCurrentMethod().Name + " Token request was not succesfull: " + tokenReceived.Result);
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+        }
+
+
+    }
+}

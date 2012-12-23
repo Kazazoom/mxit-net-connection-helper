@@ -17,6 +17,7 @@ using MXit.Messaging;
 using MXit.Messaging.MessageElements;
 using MXit.Billing;
 using MXit.User;
+using MXit.OAuth2;
 
 
 namespace MXitConnectionModule
@@ -115,11 +116,6 @@ namespace MXitConnectionModule
             {
                 try
                 {
-                    //if (logger.IsDebugEnabled)
-                    //{
-                    //    Console.WriteLine(DateTime.Now.ToString() + "Message:" + message.Body);
-                    //}
-
                     SharpConnectionHelperSingleton.Instance.client.SendMessage((MessageToSend)message);
 
                     success = true;
@@ -127,7 +123,7 @@ namespace MXitConnectionModule
                 catch (System.TimeoutException te)
                 {
                     Console.WriteLine(DateTime.Now.ToString() + " Timeout Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Timeout Exception. Going to try to reconnect");
+                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Timeout Exception. Going to try to reconnect",te);
                     this.ReConnectFull();
                     //consider resending message here.
                     success = false;
@@ -135,7 +131,7 @@ namespace MXitConnectionModule
                 catch (System.ServiceModel.CommunicationObjectAbortedException coae)
                 {
                     Console.WriteLine(DateTime.Now.ToString() + " Communication Object Aborted Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Aborted Exception. Going to try to reconnect");
+                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Aborted Exception. Going to try to reconnect",coae);
                     this.ReConnectFull();
 
                     success = false;
@@ -143,7 +139,7 @@ namespace MXitConnectionModule
                 catch (System.ServiceModel.CommunicationObjectFaultedException cofe)
                 {
                     Console.WriteLine(DateTime.Now.ToString() + " Communication Object Faulted Exception. Going to try to reconnect...");
-                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Faulted Exception. Going to try to reconnect");
+                    logger.Error("[" +MethodBase.GetCurrentMethod().Name + "()] - Communication Object Faulted Exception. Going to try to reconnect",cofe);
                     this.ReConnectFull();
 
                     success = false;
@@ -361,7 +357,7 @@ namespace MXitConnectionModule
                             logger.Debug("" + MethodBase.GetCurrentMethod().Name + "()] Waiting for 60s before trying to reconnect.");
                             Console.WriteLine(DateTime.Now.ToString() + " Waiting for 60s before trying to reconnect");
                             isFirstTime = false;
-                            Thread.Sleep(60 * 1000);
+                            Thread.Sleep(2 * 1000); //Made time shorted while Mxit API is giving issues taking long to connect.
                         }
 
                         logger.Debug("[" +MethodBase.GetCurrentMethod().Name + "()] Creating commsClient...");
@@ -664,7 +660,8 @@ namespace MXitConnectionModule
             catch (Exception ex)
             {
                 Console.WriteLine(DateTime.Now.ToString() + " Exception registering new image.");
-                logger.Error("[" + MethodBase.GetCurrentMethod().Name + "()] - Exception registering new image: " + ex.ToString());
+                logger.Fatal("[" + MethodBase.GetCurrentMethod().Name + "()] - Exception registering new image: " + ex.ToString());
+                this.ReConnectFull();
                 return null;
             }
         }
@@ -681,5 +678,18 @@ namespace MXitConnectionModule
                 logger.Error("[" + MethodBase.GetCurrentMethod().Name + " - System Exception requesting userInfo: " + e.ToString());
             }
         }
+        
+        public void RequestOAuthToken(TokenRequest tokenRequest) 
+        {
+            try
+            {
+                this.client.RequestOAuthToken(tokenRequest);
+            }
+            catch (Exception ex) {
+                logger.Error("Error requesting OAuthToken", ex);
+            }
+            return;
+        }
+
     }
 }
