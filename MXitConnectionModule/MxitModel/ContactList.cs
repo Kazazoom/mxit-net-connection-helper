@@ -8,6 +8,12 @@ namespace MXitConnectionModule.MxitModel
     public class ContactList
     {
         public Contact[] Contacts;
+        public int selectedFriendCount { get; private set; }
+
+        public ContactList()
+        {
+            selectedFriendCount = 0;
+        }
 
         public void clearSelected()
         {
@@ -24,9 +30,21 @@ namespace MXitConnectionModule.MxitModel
 
             if (friend != null)
             {
-                friend.isSelected = !friend.isSelected;
+                if (friend.isSelected)
+                {
+                    friend.isSelected = false;
+                    lock (this) selectedFriendCount++;
+                }
+                else
+                {
+                    friend.isSelected = true;
+                    lock (this) selectedFriendCount--;
+                }
+                
             }
         }
+
+
     }
 
     
