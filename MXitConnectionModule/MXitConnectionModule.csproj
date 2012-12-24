@@ -62,8 +62,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionConfig.cs" />
-    <Compile Include="MxitProfile.cs" />
-    <Compile Include="MxitState.cs" />
+    <Compile Include="MxitModel\Availability.cs" />
+    <Compile Include="MxitModel\ContactType.cs" />
+    <Compile Include="MxitModel\Gender.cs" />
+    <Compile Include="MxitModel\Mood.cs" />
+    <Compile Include="MxitModel\RelationshipStatus.cs" />
+    <Compile Include="MxitModel\Contact.cs" />
+    <Compile Include="MxitModel\ContactList.cs" />
+    <Compile Include="MxitModel\FullProfile.cs" />
+    <Compile Include="MxitModel\State.cs" />
+    <Compile Include="MxitModel\SubscriptionType.cs" />
     <Compile Include="QueueHelper_HTTP.cs" />
     <Compile Include="QueueHelper_OutgoingMessage.cs" />
     <Compile Include="RESTConnectionHelper.cs" />

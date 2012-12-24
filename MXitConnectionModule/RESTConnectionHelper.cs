@@ -122,6 +122,22 @@ namespace MXitConnectionModule
             return this.SendMessage(RESTMessageToSend);
         }
 
+        public bool SendMessageFromUserAToUserB(String token, MessageToSend messageToSend)
+        {
+            MXitConnectionModule.RESTMessageToSend RESTMessageToSend = new RESTMessageToSend(messageToSend);
+            return this.SendMessageFromUserAToUserB(token, RESTMessageToSend);
+        }
+
+        public bool SendMessageFromUserAToUserB(String token, RESTMessageToSend restMessageToSend)
+        {
+            System.Net.HttpStatusCode responseCode;
+            bool sentMessageOK = false;
+
+            sentMessageOK = SendMessageFromUserAToUserB(token, restMessageToSend, out responseCode);
+
+            return sentMessageOK;
+        }
+
         public bool SendMessage(RESTMessageToSend restMessageToSend)
         {
             bool success = false;
@@ -258,7 +274,8 @@ namespace MXitConnectionModule
         /// The sendMessage method
         /// </summary>
         //public bool SendMessageFromFriendToFriend2(RESTMessageToSend rMessageToSend, out System.Net.HttpStatusCode responseCode)
-        public bool SendMessageFromFriendToFriend2(String RequestToken, String MxitUserID_From, String MxitUserID_To, String messageBody, out System.Net.HttpStatusCode responseCode)
+        //public bool SendMessageFromUserAToUserB(String RequestToken, String MxitUserID_From, String MxitUserID_To, String messageBody, out System.Net.HttpStatusCode responseCode)
+        public bool SendMessageFromUserAToUserB(String RequestToken, RESTMessageToSend rMessageToSend, out System.Net.HttpStatusCode responseCode)
         {
             logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
             bool success = false;
@@ -284,8 +301,6 @@ namespace MXitConnectionModule
                 RESTRequest.AddHeader("Accept", "application/json");
                 RESTRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
 
-
-                RESTMessageToSend rMessageToSend = new RESTMessageToSend(MxitUserID_From, MxitUserID_To, messageBody);
                 RESTRequest.AddBody(rMessageToSend);
 
                 logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
@@ -328,9 +343,9 @@ namespace MXitConnectionModule
         /// <summary>
         /// The GetProfile method
         /// </summary>
-        public bool GetProfile(String OAuth2Token, String MxitUserID, out MxitProfile userProfile)
+        public bool GetUserMxitProfile(String OAuth2Token, String MxitUserID, out MxitModel.FullProfile userProfile)
         {
-            userProfile = new MxitProfile();
+            userProfile = new MxitModel.FullProfile();
 
             System.Net.HttpStatusCode responseCode;
             logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
@@ -370,7 +385,7 @@ namespace MXitConnectionModule
                 {
                     logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Get Profile OK.");
                     //convert the rest response into a profile
-                    userProfile = JsonConvert.DeserializeObject<MxitProfile>(RESTResponse.Content);
+                    userProfile = JsonConvert.DeserializeObject<MxitModel.FullProfile>(RESTResponse.Content);
                     if (logger.IsDebugEnabled) Console.WriteLine(userProfile.ToString());
                     success = true;
                 }
@@ -388,6 +403,76 @@ namespace MXitConnectionModule
             {
                 Console.WriteLine(DateTime.Now.ToString() + " Exception sending REST message:" + ex.ToString());
                 logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception sending REST message: " + ex.GetType() + " " + ex.ToString());
+                success = false;
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+            return success;
+        }
+
+        /// <summary>
+        /// The GetProfile method
+        /// </summary>
+        public bool GetContactList(String OAuth2Token, String MxitUserID, out MxitModel.ContactList userContactList)
+        {
+            userContactList = new MxitModel.ContactList();
+
+            System.Net.HttpStatusCode responseCode;
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            bool success = false;
+            responseCode = System.Net.HttpStatusCode.Unauthorized;//Need to improve this
+
+            try
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+
+                var client = new RestClient();
+
+                client.BaseUrl = "http://api.mxit.com";
+                client.Authenticator = new RESTMxitOAuth2Authenticator(OAuth2Token);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+
+                var RESTRequest = new RestRequest();
+                RESTRequest.Method = Method.GET;
+                RESTRequest.RequestFormat = DataFormat.Json;
+                RESTRequest.AddHeader("Content-Type", "application/json");
+                RESTRequest.AddHeader("Accept", "application/json");
+                RESTRequest.Resource = "/user/socialgraph/contactlist?filter=@Friends"; //Resource points to the method of the API we want to access
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (ContactList)");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (ContactList)");
+
+                RestResponse RESTResponse = (RestResponse)client.Execute(RESTRequest);
+
+                //Set the out parameter, so that the calling method can redo auth if needed and retry:
+                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
+                bool responseOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                if (responseOK)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Get ContactList OK.");
+                    //convert the rest response into a profile
+                    userContactList = JsonConvert.DeserializeObject<MxitModel.ContactList>(RESTResponse.Content);
+                    if (logger.IsDebugEnabled) Console.WriteLine(userContactList.ToString());
+                    success = true;
+                }
+                else // Something went wrong, we'll handle the error code in the calling wrapper method
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - GetContactList Failed: (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ") Reason: " + RESTResponse.Content);
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " GetContactList FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ") Reason: " + RESTResponse.Content);
+
+                    responseCode = RESTResponse.StatusCode;
+
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Exception GetContactList:" + ex.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception GetContactList: " + ex.GetType() + " " + ex.ToString());
                 success = false;
             }
 
@@ -569,72 +654,6 @@ namespace MXitConnectionModule
             }
         }
 
-        public bool SendMessageFromFriendToFriend(String MxitUserID_From, String MxitUserID_To, String messageBody, out System.Net.HttpStatusCode responseCode)
-        {
-            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
-            bool success = false;
-            responseCode = System.Net.HttpStatusCode.Unauthorized;//Need to improve this
-
-            try
-            {
-                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
-                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
-
-                var client = new RestClient();
-
-                client.BaseUrl = "http://api.mxit.com";
-                client.Authenticator = new RESTMxitOAuth2Authenticator(this.REST_AccessToken);
-
-                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
-                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
-
-                var RESTRequest = new RestRequest();
-                RESTRequest.Method = Method.POST;
-                RESTRequest.RequestFormat = DataFormat.Json;
-                RESTRequest.AddHeader("Content-Type", "application/json");
-                RESTRequest.AddHeader("Accept", "application/json");
-                RESTRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
-
-                RESTMessageToSend rMessageToSend = new RESTMessageToSend(MxitUserID_From, MxitUserID_To, messageBody);
-
-                RESTRequest.AddBody(rMessageToSend);
-
-                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
-                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
-
-                RestResponse RESTResponse = (RestResponse)client.Execute(RESTRequest);
-
-                //Set the out parameter, so that the calling method can redo auth if needed and retry:
-                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
-                bool sentMessageOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
-
-                if (sentMessageOK)
-                {
-                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Sent message OK.");
-                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Sent message to OK.");
-
-                    success = true;
-                }
-                else // Something went wrong, we'll handle the error code in the calling wrapper method
-                {
-                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestSendMessage Failed: (from: " + MxitUserID_From + " to:" + MxitUserID_To + " body: " + messageBody + ") (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
-                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestSendMessage FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
-
-                    responseCode = RESTResponse.StatusCode;
-
-                    success = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(DateTime.Now.ToString() + " Exception sending REST message:" + ex.ToString());
-                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception sending REST message: " + ex.GetType() + " " + ex.ToString());
-                success = false;
-            }
-
-            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
-            return success;
-        }
 
         public void ProcessOAuth2Token(MXit.OAuth2.TokenResponse tokenResponseReceived)
         {
@@ -651,15 +670,34 @@ namespace MXitConnectionModule
                 {
                     if ((String)tokenResponseReceived.Context == ".p")
                     {
-                        MxitProfile userProfile;
+                        MxitModel.FullProfile userProfile;
 
                         //Do something with the tokenReceived.AccessToken
-                        this.GetProfile(tokenResponseReceived.AccessToken, tokenResponseReceived.UserId, out userProfile);
+                        this.GetUserMxitProfile(tokenResponseReceived.AccessToken, tokenResponseReceived.UserId, out userProfile);
+                    }
+                    else if ((String)tokenResponseReceived.Context == ".sf")
+                    {
+                        MxitModel.ContactList userContactList;
+
+                        //Do something with the tokenReceived.AccessToken
+                        this.GetContactList(tokenResponseReceived.AccessToken, tokenResponseReceived.UserId, out userContactList);
+
+                        for (int i=0; i < userContactList.Contacts.Length; i++)
+                        {
+                            Console.WriteLine(userContactList.Contacts[i].DisplayName);
+                        }
                     }
                     else if ((String)tokenResponseReceived.Context == ".f")
                     {
                         System.Net.HttpStatusCode responseCode;
-                        MXitConnectionModule.RESTConnectionHelper.Instance.SendMessageFromFriendToFriend2(tokenResponseReceived.AccessToken, tokenResponseReceived.UserId, "m42992584002", "Merry Christmas! It's morning, and we've got nowhere to go. So wake me up in about an hour or so. It's Christmas day, and since we've got nowhere to be, stoke that braai and throw on another boerewors for me. It's Christmas night, and there's nothing I'd rather do than chill by the light of the Christmas tree with you.", out responseCode);
+                        //MXitConnectionModule.RESTConnectionHelper.Instance.SendMessageFromFriendToFriend(tokenResponseReceived.AccessToken, tokenResponseReceived.UserId, "m42992584002", "Merry Christmas! It's morning, and we've got nowhere to go. So wake me up in about an hour or so. It's Christmas day, and since we've got nowhere to be, stoke that braai and throw on another boerewors for me. It's Christmas night, and there's nothing I'd rather do than chill by the light of the Christmas tree with you.", out responseCode);
+
+                        MessageToSend messageToSendToFriend = new MessageToSend(tokenResponseReceived.UserId, "m42992584002", DeviceInfo.DefaultDevice);
+                        messageToSendToFriend.AppendLine("Light text", System.Drawing.Color.Black);
+                        messageToSendToFriend.AppendLine("Bold text", System.Drawing.Color.Purple, new TextMarkup[] { TextMarkup.Bold });
+                        messageToSendToFriend.AppendLine(MessageBuilder.Elements.CreateLink("Tip Link", ".tip"));
+
+                        MXitConnectionModule.RESTConnectionHelper.Instance.SendMessageFromUserAToUserB(tokenResponseReceived.AccessToken, messageToSendToFriend);
                     }
                 }
                 else
