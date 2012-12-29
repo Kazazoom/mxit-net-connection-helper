@@ -33,15 +33,35 @@ namespace MXitConnectionModule.MxitModel
                 if (friend.isSelected)
                 {
                     friend.isSelected = false;
-                    lock (this) selectedFriendCount++;
+                    lock (this) selectedFriendCount--;
                 }
                 else
                 {
                     friend.isSelected = true;
-                    lock (this) selectedFriendCount--;
+                    lock (this) selectedFriendCount++;
                 }
                 
             }
+        }
+
+        public void selectAll()
+        {
+            foreach (Contact friend in Contacts)
+            {
+                friend.isSelected = true;
+            }
+
+            selectedFriendCount = Contacts.Length;
+        }
+
+        public void unSelectAll()
+        {
+            foreach (Contact friend in Contacts)
+            {
+                friend.isSelected = false;
+            }
+
+            selectedFriendCount = 0;
         }
 
 
