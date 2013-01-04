@@ -167,10 +167,10 @@ namespace MXitConnectionModule
         {
             return
                 (
-                this.workerThreadPool.MinThreads + "|" +
-                this.workerThreadPool.MaxThreads + "|" +
-                this.workerThreadPool.WorkingThreads + "|" +
-                this.workerThreadPool.TotalThreads + "|" +
+                this.workerThreadPool.MinThreads + " | " +
+                this.workerThreadPool.MaxThreads + " | " +
+                this.workerThreadPool.WorkingThreads + " | " +
+                this.workerThreadPool.TotalThreads + " | " +
                 this.workerThreadPool.QueueLength
                 );
         }
