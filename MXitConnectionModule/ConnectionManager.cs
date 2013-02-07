@@ -8,6 +8,7 @@ using MXit.User;
 using MXit.Messaging;
 using MXit.Billing;
 using MXit.Messaging.MessageElements;
+using MXit.OAuth2;
 
 namespace MXitConnectionModule
 {
@@ -112,6 +113,11 @@ namespace MXitConnectionModule
         public bool EnqueueMessageToSend(MessageToSend item)
         {
             return QueueHelper_OutgoingMessage.Instance.EnqueueItem(item);
+        }
+
+        public void RequestOAuthToken(TokenRequest tokenRequest)
+        {
+            SharpConnectionHelperSingleton.Instance.RequestOAuthToken(tokenRequest);
         }
 
         public void RequestUserInfo(UserInfoRequest userInfoRequest)

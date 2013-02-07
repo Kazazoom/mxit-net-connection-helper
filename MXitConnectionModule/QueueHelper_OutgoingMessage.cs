@@ -162,5 +162,17 @@ namespace MXitConnectionModule
         {
             return this.workerThreadPool.TotalThreads;
         }
+
+        public String getInfoString()
+        {
+            return
+                (
+                this.workerThreadPool.MinThreads + " | " +
+                this.workerThreadPool.MaxThreads + " | " +
+                this.workerThreadPool.WorkingThreads + " | " +
+                this.workerThreadPool.TotalThreads + " | " +
+                this.workerThreadPool.QueueLength
+                );
+        }
     }
 }

@@ -3,6 +3,7 @@
   <xs:import namespace="http://schemas.datacontract.org/2004/07/System" />
   <xs:import namespace="http://schemas.datacontract.org/2004/07/MXit" />
   <xs:import namespace="http://schemas.datacontract.org/2004/07/MXit.User" />
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/MXit.OAuth2" />
   <xs:import namespace="http://schemas.datacontract.org/2004/07/MXit.Messaging" />
   <xs:import namespace="http://schemas.datacontract.org/2004/07/System.Drawing" />
   <xs:import namespace="http://schemas.datacontract.org/2004/07/MXit.Messaging.MessageElements" />
@@ -94,10 +95,34 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="RequestUserInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/MXit.User" minOccurs="0" name="userInfoRequest" nillable="true" type="q5:UserInfoRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestUserInfoResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestOAuthToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/MXit.OAuth2" minOccurs="0" name="oAuthTokenRequest" nillable="true" type="q6:TokenRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestOAuthTokenResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="SendMessage">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="message" nillable="true" type="q5:MessageToSend" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="message" nillable="true" type="q7:MessageToSend" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -110,7 +135,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="name" nillable="true" type="xs:string" />
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/System.Drawing" minOccurs="0" name="image" nillable="true" type="q6:Bitmap" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/System.Drawing" minOccurs="0" name="image" nillable="true" type="q8:Bitmap" />
         <xs:element minOccurs="0" name="frameWidth" type="xs:int" />
         <xs:element minOccurs="0" name="frameHeight" type="xs:int" />
         <xs:element minOccurs="0" name="layer" type="xs:int" />
@@ -120,14 +145,14 @@
   <xs:element name="RegisterImageStripResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/MXit.Messaging.MessageElements" minOccurs="0" name="RegisterImageStripResult" nillable="true" type="q7:ImageStripReference" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/MXit.Messaging.MessageElements" minOccurs="0" name="RegisterImageStripResult" nillable="true" type="q9:ImageStripReference" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="RedirectUser">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/MXit.Navigation" minOccurs="0" name="redirectRequest" nillable="true" type="q8:RedirectRequest" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/MXit.Navigation" minOccurs="0" name="redirectRequest" nillable="true" type="q10:RedirectRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -139,7 +164,7 @@
   <xs:element name="RequestPayment">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/MXit.Billing" minOccurs="0" name="paymentRequest" nillable="true" type="q9:PaymentRequest" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/MXit.Billing" minOccurs="0" name="paymentRequest" nillable="true" type="q11:PaymentRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -166,28 +191,42 @@
   <xs:element name="OnMessageReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="messageReceived" nillable="true" type="q10:MessageReceived" />
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="messageReceived" nillable="true" type="q12:MessageReceived" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnFileReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="fileReceived" nillable="true" type="q11:FileReceived" />
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/MXit.Messaging" minOccurs="0" name="fileReceived" nillable="true" type="q13:FileReceived" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnPresenceReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/MXit.User" minOccurs="0" name="userPresence" nillable="true" type="q12:Presence" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/MXit.User" minOccurs="0" name="userPresence" nillable="true" type="q14:Presence" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnPaymentResponseReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/MXit.Billing" minOccurs="0" name="paymentResponse" nillable="true" type="q13:PaymentResponse" />
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/MXit.Billing" minOccurs="0" name="paymentResponse" nillable="true" type="q15:PaymentResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OnUserInfoResponseReceived">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/MXit.User" minOccurs="0" name="userInfoResponse" nillable="true" type="q16:UserInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OnOAuthTokenResponseReceived">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/MXit.OAuth2" minOccurs="0" name="oAuthTokenResponse" nillable="true" type="q17:TokenResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -195,14 +234,14 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="message" nillable="true" type="xs:string" />
-        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/MXit.Log" minOccurs="0" name="level" type="q14:Level" />
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/MXit.Log" minOccurs="0" name="level" type="q18:Level" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnServerEvent">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" minOccurs="0" name="serverEventType" type="q15:ServerEventType" />
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" minOccurs="0" name="serverEventType" type="q19:ServerEventType" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

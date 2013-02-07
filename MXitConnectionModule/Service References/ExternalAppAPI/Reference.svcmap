@@ -29,11 +29,14 @@
     <MetadataFile FileName="MXit.ExternalAppAPI.xsd" MetadataType="Schema" ID="afd77dbb-8189-4745-bf01-25dbb33522a5" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.xsd" MetadataType="Schema" ID="583b6237-6163-41e0-9f82-975660288df4" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.User.xsd" MetadataType="Schema" ID="5f04c8f8-4e48-4b7f-81ee-23a0dd9231d1" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
+    <MetadataFile FileName="MXit.OAuth2.xsd" MetadataType="Schema" ID="e47eb47a-a6f8-4163-b29d-d20394bec2a1" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="143c9495-d7b6-4873-b316-e83440bb6ae0" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.Messaging.xsd" MetadataType="Schema" ID="ed0cc402-ff33-4234-9395-94206f94aec1" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="System.Drawing.xsd" MetadataType="Schema" ID="107e5741-a269-46cc-a7e3-8308b5d31ba0" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.Messaging.MessageElements.xsd" MetadataType="Schema" ID="34659ec6-6f0b-4a98-827e-663c50000fe9" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.Navigation.xsd" MetadataType="Schema" ID="5e793c7f-605f-42c4-bdd7-67639aeb7d26" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.Billing.xsd" MetadataType="Schema" ID="1bed5198-b5c7-40f5-aa24-8ceea4086dec" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
+    <MetadataFile FileName="MXit.Async.xsd" MetadataType="Schema" ID="cad1dcba-89f6-4a0c-add9-c01ba858aa14" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
     <MetadataFile FileName="MXit.Log.xsd" MetadataType="Schema" ID="75c7a891-7491-4e29-8494-95db5ceedf90" SourceId="1" SourceUrl="http://externalappapi.mxit.com:9151/ExternalAppAPI/Comms/mex" />
   </Metadata>
   <Extensions>
