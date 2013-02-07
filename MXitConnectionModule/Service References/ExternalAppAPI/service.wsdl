@@ -110,6 +110,30 @@
         <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="RequestUserInfo">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestUserInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="CommsErrorFault">
+        <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RequestOAuthToken">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestOAuthToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="CommsErrorFault">
+        <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="SendMessage">
       <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/SendMessage" style="document" />
       <wsdl:input>
@@ -190,6 +214,18 @@
     </wsdl:operation>
     <wsdl:operation name="OnPaymentResponseReceived">
       <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnPaymentResponseReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnUserInfoResponseReceived">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnUserInfoResponseReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnOAuthTokenResponseReceived">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnOAuthTokenResponseReceived" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
@@ -294,6 +330,30 @@
         <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="RequestUserInfo">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestUserInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="CommsErrorFault">
+        <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RequestOAuthToken">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestOAuthToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="CommsErrorFault">
+        <soap12:fault use="literal" name="CommsErrorFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="SendMessage">
       <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/SendMessage" style="document" />
       <wsdl:input>
@@ -378,6 +438,18 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="OnUserInfoResponseReceived">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnUserInfoResponseReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnOAuthTokenResponseReceived">
+      <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnOAuthTokenResponseReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="OnNotificationReceived">
       <soap12:operation soapAction="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnNotificationReceived" style="document" />
       <wsdl:output>
@@ -393,20 +465,20 @@
   </wsdl:binding>
   <wsdl:service name="Comms">
     <wsdl:port name="WSDualHttpBinding_Comms" binding="tns:WSDualHttpBinding_Comms">
-      <soap12:address location="http://externalappapi.mxit.com:9153/ExternalAppAPI/Comms/" />
+      <soap12:address location="http://41.191.127.84:9153/ExternalAppAPI/Comms/" />
       <wsa10:EndpointReference>
-        <wsa10:Address>http://externalappapi.mxit.com:9153/ExternalAppAPI/Comms/</wsa10:Address>
+        <wsa10:Address>http://41.191.127.84:9153/ExternalAppAPI/Comms/</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Dns>externalappapi.mxit.com</Dns>
+          <Dns>41.191.127.84</Dns>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_Comms" binding="tns:NetTcpBinding_Comms">
-      <soap12:address location="net.tcp://externalappapi.mxit.com:9150/ExternalAppAPI/Comms/" />
+      <soap12:address location="net.tcp://41.191.127.84:9150/ExternalAppAPI/Comms/" />
       <wsa10:EndpointReference>
-        <wsa10:Address>net.tcp://externalappapi.mxit.com:9150/ExternalAppAPI/Comms/</wsa10:Address>
+        <wsa10:Address>net.tcp://41.191.127.84:9150/ExternalAppAPI/Comms/</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Dns>externalappapi.mxit.com</Dns>
+          <Dns>41.191.127.84</Dns>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>

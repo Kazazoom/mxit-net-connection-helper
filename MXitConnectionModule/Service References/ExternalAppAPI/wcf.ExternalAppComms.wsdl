@@ -8,11 +8,14 @@
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/System" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.User" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.OAuth2" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Messaging" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/System.Drawing" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Messaging.MessageElements" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Navigation" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Billing" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Async" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/MXit.Log" />
     </xsd:schema>
   </wsdl:types>
@@ -79,6 +82,24 @@
   <wsdl:message name="Comms_GetUser_CommsErrorFault_FaultMessage">
     <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q7:CommsError" />
   </wsdl:message>
+  <wsdl:message name="Comms_RequestUserInfo_InputMessage">
+    <wsdl:part name="parameters" element="tns:RequestUserInfo" />
+  </wsdl:message>
+  <wsdl:message name="Comms_RequestUserInfo_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RequestUserInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="Comms_RequestUserInfo_CommsErrorFault_FaultMessage">
+    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q8:CommsError" />
+  </wsdl:message>
+  <wsdl:message name="Comms_RequestOAuthToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:RequestOAuthToken" />
+  </wsdl:message>
+  <wsdl:message name="Comms_RequestOAuthToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RequestOAuthTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="Comms_RequestOAuthToken_CommsErrorFault_FaultMessage">
+    <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q9:CommsError" />
+  </wsdl:message>
   <wsdl:message name="Comms_SendMessage_InputMessage">
     <wsdl:part name="parameters" element="tns:SendMessage" />
   </wsdl:message>
@@ -86,7 +107,7 @@
     <wsdl:part name="parameters" element="tns:SendMessageResponse" />
   </wsdl:message>
   <wsdl:message name="Comms_SendMessage_CommsErrorFault_FaultMessage">
-    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q8:CommsError" />
+    <wsdl:part xmlns:q10="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q10:CommsError" />
   </wsdl:message>
   <wsdl:message name="Comms_RegisterImageStrip_InputMessage">
     <wsdl:part name="parameters" element="tns:RegisterImageStrip" />
@@ -95,7 +116,7 @@
     <wsdl:part name="parameters" element="tns:RegisterImageStripResponse" />
   </wsdl:message>
   <wsdl:message name="Comms_RegisterImageStrip_CommsErrorFault_FaultMessage">
-    <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q9:CommsError" />
+    <wsdl:part xmlns:q11="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q11:CommsError" />
   </wsdl:message>
   <wsdl:message name="Comms_RedirectUser_InputMessage">
     <wsdl:part name="parameters" element="tns:RedirectUser" />
@@ -104,7 +125,7 @@
     <wsdl:part name="parameters" element="tns:RedirectUserResponse" />
   </wsdl:message>
   <wsdl:message name="Comms_RedirectUser_CommsErrorFault_FaultMessage">
-    <wsdl:part xmlns:q10="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q10:CommsError" />
+    <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q12:CommsError" />
   </wsdl:message>
   <wsdl:message name="Comms_RequestPayment_InputMessage">
     <wsdl:part name="parameters" element="tns:RequestPayment" />
@@ -113,7 +134,7 @@
     <wsdl:part name="parameters" element="tns:RequestPaymentResponse" />
   </wsdl:message>
   <wsdl:message name="Comms_RequestPayment_CommsErrorFault_FaultMessage">
-    <wsdl:part xmlns:q11="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q11:CommsError" />
+    <wsdl:part xmlns:q13="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q13:CommsError" />
   </wsdl:message>
   <wsdl:message name="Comms_ConfirmPayment_InputMessage">
     <wsdl:part name="parameters" element="tns:ConfirmPayment" />
@@ -122,7 +143,7 @@
     <wsdl:part name="parameters" element="tns:ConfirmPaymentResponse" />
   </wsdl:message>
   <wsdl:message name="Comms_ConfirmPayment_CommsErrorFault_FaultMessage">
-    <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q12:CommsError" />
+    <wsdl:part xmlns:q14="http://schemas.datacontract.org/2004/07/MXit.ExternalAppAPI" name="detail" element="q14:CommsError" />
   </wsdl:message>
   <wsdl:message name="Comms_OnMessageReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnMessageReceived" />
@@ -135,6 +156,12 @@
   </wsdl:message>
   <wsdl:message name="Comms_OnPaymentResponseReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnPaymentResponseReceived" />
+  </wsdl:message>
+  <wsdl:message name="Comms_OnUserInfoResponseReceived_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:OnUserInfoResponseReceived" />
+  </wsdl:message>
+  <wsdl:message name="Comms_OnOAuthTokenResponseReceived_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:OnOAuthTokenResponseReceived" />
   </wsdl:message>
   <wsdl:message name="Comms_OnNotificationReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnNotificationReceived" />
@@ -178,6 +205,16 @@
       <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/GetUserResponse" message="tns:Comms_GetUser_OutputMessage" />
       <wsdl:fault wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/GetUserCommsErrorFault" name="CommsErrorFault" message="tns:Comms_GetUser_CommsErrorFault_FaultMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RequestUserInfo">
+      <wsdl:input wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestUserInfo" message="tns:Comms_RequestUserInfo_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestUserInfoResponse" message="tns:Comms_RequestUserInfo_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestUserInfoCommsErrorFault" name="CommsErrorFault" message="tns:Comms_RequestUserInfo_CommsErrorFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RequestOAuthToken">
+      <wsdl:input wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestOAuthToken" message="tns:Comms_RequestOAuthToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestOAuthTokenResponse" message="tns:Comms_RequestOAuthToken_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/RequestOAuthTokenCommsErrorFault" name="CommsErrorFault" message="tns:Comms_RequestOAuthToken_CommsErrorFault_FaultMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SendMessage">
       <wsdl:input wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/SendMessage" message="tns:Comms_SendMessage_InputMessage" />
       <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/SendMessageResponse" message="tns:Comms_SendMessage_OutputMessage" />
@@ -214,6 +251,12 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="OnPaymentResponseReceived">
       <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnPaymentResponseReceived" message="tns:Comms_OnPaymentResponseReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="OnUserInfoResponseReceived">
+      <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnUserInfoResponseReceived" message="tns:Comms_OnUserInfoResponseReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="OnOAuthTokenResponseReceived">
+      <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnOAuthTokenResponseReceived" message="tns:Comms_OnOAuthTokenResponseReceived_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="OnNotificationReceived">
       <wsdl:output wsaw:Action="http://www.mxit.com/wcf.ExternalAppComms/Comms/OnNotificationReceived" message="tns:Comms_OnNotificationReceived_OutputCallbackMessage" />

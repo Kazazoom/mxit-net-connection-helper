@@ -34,12 +34,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\..\lib\log4net.dll</HintPath>
+      <HintPath>..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MiscUtil">
+      <HintPath>..\lib\MiscUtil.dll</HintPath>
     </Reference>
     <Reference Include="MXitExternalAppSDK">
-      <HintPath>..\..\lib\MXitExternalAppSDK.dll</HintPath>
+      <HintPath>..\lib\MXitExternalAppSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\lib\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
@@ -51,6 +61,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionConfig.cs" />
+    <Compile Include="MxitModel\Availability.cs" />
+    <Compile Include="MxitModel\ContactType.cs" />
+    <Compile Include="MxitModel\Gender.cs" />
+    <Compile Include="MxitModel\Mood.cs" />
+    <Compile Include="MxitModel\RelationshipStatus.cs" />
+    <Compile Include="MxitModel\Contact.cs" />
+    <Compile Include="MxitModel\ContactList.cs" />
+    <Compile Include="MxitModel\FullProfile.cs" />
+    <Compile Include="MxitModel\State.cs" />
+    <Compile Include="MxitModel\SubscriptionType.cs" />
+    <Compile Include="QueueHelper_HTTP.cs" />
+    <Compile Include="QueueHelper_OutgoingMessage.cs" />
+    <Compile Include="RESTConnectionHelper.cs" />
+    <Compile Include="RESTMessageToSend.cs" />
+    <Compile Include="RESTMxitOAuth2Authenticator.cs" />
+    <Compile Include="RESTMxitResponseCode.cs" />
     <Compile Include="SharpConnectionHelper.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,14 +91,18 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Properties\DataSources\MXit.Messaging.MessageElements.ImageStripReference.datasource" />
     <None Include="Properties\DataSources\MXit.User.UserInfo.datasource" />
+    <None Include="Service References\ExternalAppAPI\Arrays.xsd" />
+    <None Include="Service References\ExternalAppAPI\MXit.Async.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.Billing.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.ExternalAppAPI.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.Log.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.Messaging.MessageElements.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.Messaging.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.Navigation.xsd" />
+    <None Include="Service References\ExternalAppAPI\MXit.OAuth2.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.User.xsd" />
     <None Include="Service References\ExternalAppAPI\MXit.xsd" />
     <None Include="Service References\ExternalAppAPI\service.wsdl" />
