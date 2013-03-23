@@ -639,6 +639,7 @@ namespace MXitConnectionModule
         {
             try
             {
+                Thread.Sleep(100);
                 Instance.client.RedirectUser(redirectRequest);
             }
             catch (Exception e)
