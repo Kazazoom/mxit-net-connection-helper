@@ -13,6 +13,7 @@ namespace MXitConnectionModule.MxitModel
         public ContactList()
         {
             selectedFriendCount = 0;
+            Contacts = new Contact[0];
         }
 
         public void clearSelected()
@@ -62,6 +63,10 @@ namespace MXitConnectionModule.MxitModel
             }
 
             selectedFriendCount = 0;
+        }
+
+        public int getTotalFriendCount() {
+            return Contacts.Length;
         }
 
 
