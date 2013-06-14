@@ -21,7 +21,15 @@ namespace MXitConnectionModule
         public override void Authenticate(IRestClient client, IRestRequest request)
         {
             //MXit requests that the authorize parameter is added in the following form
+            //Only add the Authorization header if it doesn't already exist.
+            if (request.Parameters.Find(
+                                        delegate(Parameter p) {
+                                            return p.Name == "Authorization";
+                                        })
+                                        == null) 
+            {
             request.AddHeader("Authorization", "Bearer " + AccessToken);
         }
     }
+}
 }

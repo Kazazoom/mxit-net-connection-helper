@@ -21,6 +21,7 @@ using Newtonsoft;
 using Newtonsoft.Json;
 using MXit.OAuth2;
 using MXit.Async;
+using System.Linq;
 
 namespace MXitConnectionModule
 {
@@ -416,6 +417,7 @@ namespace MXitConnectionModule
         public bool GetContactList(String OAuth2Token, String MxitUserID, out MxitModel.ContactList userContactList)
         {
             userContactList = new MxitModel.ContactList();
+            MxitModel.ContactList partialContactList = new MxitModel.ContactList();
 
             System.Net.HttpStatusCode responseCode;
             logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
@@ -435,13 +437,20 @@ namespace MXitConnectionModule
                 logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
                 if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
 
+                int count = 26; //how many contacts to retrieve at a time, max is 26
+                int skip = 0;
+                const int MAX_ITERATIONS = 30; //MAX_ITERATIONS * count will give the max number of contacts that can be retrieved
+
                 var RESTRequest = new RestRequest();
                 RESTRequest.Method = Method.GET;
                 RESTRequest.RequestFormat = DataFormat.Json;
                 RESTRequest.AddHeader("Content-Type", "application/json");
                 RESTRequest.AddHeader("Accept", "application/json");
-                RESTRequest.Resource = "/user/socialgraph/contactlist?filter=@Friends"; //Resource points to the method of the API we want to access
 
+                do
+                {                    
+                    RESTRequest.Resource = "/user/socialgraph/contactlist?filter=@Friends&skip=" + (count*skip) + "&count=" + count; //Resource points to the method of the API we want to access
+                    partialContactList = new MxitModel.ContactList();                    
                 logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (ContactList)");
                 if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (ContactList)");
 
@@ -454,8 +463,8 @@ namespace MXitConnectionModule
                 if (responseOK)
                 {
                     logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Get ContactList OK.");
-                    //convert the rest response into a profile
-                    userContactList = JsonConvert.DeserializeObject<MxitModel.ContactList>(RESTResponse.Content);
+                        //convert the rest response into a list of contacts
+                        partialContactList = JsonConvert.DeserializeObject<MxitModel.ContactList>(RESTResponse.Content);
                     if (logger.IsDebugEnabled) Console.WriteLine(userContactList.ToString());
                     success = true;
                 }
@@ -468,6 +477,14 @@ namespace MXitConnectionModule
 
                     success = false;
                 }
+
+                    //merge the partial array with the full one
+                    userContactList.Contacts = userContactList.Contacts.Concat(partialContactList.Contacts).ToArray();                    
+
+                    skip++;
+                //continue while there are still results, no errors occur, or we have looped less times than the limit specified
+                } while ((partialContactList.getTotalFriendCount() > 0) && (skip <= MAX_ITERATIONS) && (success == true));
+                
             }
             catch (Exception ex)
             {
