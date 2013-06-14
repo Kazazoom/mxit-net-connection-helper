@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionConfig.cs" />
+    <Compile Include="ThreadPool_SendRESTMessage.cs" />
     <Compile Include="MxitModel\Availability.cs" />
     <Compile Include="MxitModel\ContactType.cs" />
     <Compile Include="MxitModel\Gender.cs" />

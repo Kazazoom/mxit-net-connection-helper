@@ -117,6 +117,11 @@ namespace MXitConnectionModule
             }
         }
 
+        public void EnqueueMessage(RESTMessageToSend rMessageToSend)
+        {
+            ThreadPool_SendRESTMessage.Instance.EnqueueItem(rMessageToSend);
+        }
+
         public bool SendMessage(MessageToSend messageToSend)
         {
             MXitConnectionModule.RESTMessageToSend RESTMessageToSend = new RESTMessageToSend(messageToSend);

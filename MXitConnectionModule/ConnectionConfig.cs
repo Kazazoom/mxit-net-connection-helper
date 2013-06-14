@@ -31,6 +31,7 @@ namespace MXitConnectionModule
 
         public static int QueueHelperMaxThreads_IncomingMessage { get; set; }
         public static int QueueHelperMaxThreads_OutgoingMessage { get; set; }
+        public static int QueueHelperMaxThreads_OutgoingRESTMessage { get; set; }
 
         #endregion Public Properties
 
@@ -71,6 +72,18 @@ namespace MXitConnectionModule
             {
                 QueueHelperMaxThreads_OutgoingMessage = 20;
                 Console.WriteLine(DateTime.Now.ToString() + " " + "WARNING: Defaulting config value: QueueHelperMaxThreads_OutgoingMessage = 20");
+            }
+
+            temp = ConfigurationManager.AppSettings["QueueHelperMaxThreads_OutgoingRESTMessage"];
+            if (!string.IsNullOrEmpty(temp))
+            {
+                int tempInt = Convert.ToInt32(temp);
+                QueueHelperMaxThreads_OutgoingRESTMessage = tempInt;
+            }
+            else
+            {
+                QueueHelperMaxThreads_OutgoingRESTMessage = 20;
+                Console.WriteLine(DateTime.Now.ToString() + " " + "WARNING: Defaulting config value: QueueHelperMaxThreads_OutgoingRESTMessage = 20");
             }
 
         }
