@@ -239,6 +239,26 @@ namespace MXitConnectionModule
 
                 REST_SendMessageRequest.AddBody(rMessageToSend);
 
+                //Start - Temporary Code
+                //TODO: REMOVE ONCE MXIT MESSAGE PARSING IS FIXED
+                //The below is a Hack to allow the Links Array to be appended if it contains 1 or more values, or remove it otherwise
+                //(if an empty Links array is passed, the message won't send correctly)
+                Parameter messageBody = REST_SendMessageRequest.Parameters.Find(
+                                        delegate(Parameter p)
+                                        {
+                                            return p.Name == "application/json";
+                                        });
+                if (messageBody != null) {
+                    //If an empty Link Array exists, remove it from the JSON message
+                    messageBody.Value = messageBody.Value.ToString().Replace("\"Links\":[],", "");
+                    REST_SendMessageRequest.Parameters.Find(
+                                        delegate(Parameter p)
+                                        {
+                                            return p.Name == "application/json";
+                                        }).Value = messageBody.Value;
+                }
+                //End - Temporary Code
+
                 logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
                 if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
 
