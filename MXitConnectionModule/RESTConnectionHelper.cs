@@ -524,6 +524,78 @@ namespace MXitConnectionModule
 
 
         /// <summary>
+        /// The GetUserAvatar method
+        /// </summary>
+        public bool GetUserAvatar(String OAuth2Token, out byte[] byteArray, out string mimeType)
+        {
+
+            mimeType = "";
+            byteArray = new byte[0];
+
+            System.Net.HttpStatusCode responseCode;
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+            bool success = false;
+            responseCode = System.Net.HttpStatusCode.Unauthorized; //Need to improve this
+
+            try
+            {
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestClient...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestClient...");
+                var client = new RestClient();
+
+                client.BaseUrl = "http://api.mxit.com";
+                client.Authenticator = new RESTMxitOAuth2Authenticator(OAuth2Token);
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Creating RestRequest...");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Creating RestRequest...");
+                var REST_SendMessageRequest = new RestRequest();
+                REST_SendMessageRequest.Method = Method.GET;
+                REST_SendMessageRequest.RequestFormat = DataFormat.Json;
+                REST_SendMessageRequest.AddHeader("Content-Type", "application/json");
+                REST_SendMessageRequest.AddHeader("Accept", "application/json");
+                REST_SendMessageRequest.Resource = "/user/avatar"; //Resource points to the method of the API we want to access
+
+                logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (GetUserAvatar)");
+                if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (GetUserAvatar)");
+
+                RestResponse RESTResponse = (RestResponse)client.Execute(REST_SendMessageRequest);
+
+                //Set the out parameter, so that the calling method can redo auth if needed and retry:
+                System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
+                bool responseOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                if (responseOK)
+                {
+                    logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Get User Avatar OK.");
+
+                    mimeType = RESTResponse.ContentType;
+                    byteArray = RESTResponse.RawBytes;
+
+                    success = true;
+                }
+                else // Something went wrong, we'll handle the error code in the calling wrapper method
+                {
+                    logger.Error(MethodBase.GetCurrentMethod().Name + "() - RestGetUserAvatar Failed: (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+                    if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " RestGetUserAvatar FAILED. (responseCode: " + (Int16)RESTResponseHTTPStatusCode + ")");
+
+                    responseCode = RESTResponse.StatusCode;
+
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + " Exception getting User Avatar:" + ex.ToString());
+                logger.Error(MethodBase.GetCurrentMethod().Name + "() - Exception getting User Avatar: " + ex.GetType() + " " + ex.ToString());
+                success = false;
+            }
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+            return success;
+        }
+
+
+        /// <summary>
         /// Connect to the MXit API Server with suppplied clientId and clientSecret
         /// </summary>
         public bool InitializeAuthorizationValuesAndAuthenticate(String aClientID, String aClientSecret)
