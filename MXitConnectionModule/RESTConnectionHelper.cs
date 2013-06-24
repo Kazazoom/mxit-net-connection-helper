@@ -159,7 +159,7 @@ namespace MXitConnectionModule
             }
             else // If something went wrong sending the message (sentMessagOK == false)
             {
-                bool isRetryableError = true;//((responseCodeReceived == ) || (responseCodeReceived == System.Net.HttpStatusCode.));
+                bool isRetryableError = (responseCode != System.Net.HttpStatusCode.BadRequest); //Only retry if it wasn't our error
                 bool isAuthenticationExpired = (responseCode == System.Net.HttpStatusCode.Unauthorized);
 
                 if (isRetryableError)
@@ -267,6 +267,9 @@ namespace MXitConnectionModule
                 //Set the out parameter, so that the calling method can redo auth if needed and retry:
                 System.Net.HttpStatusCode RESTResponseHTTPStatusCode = RESTResponse.StatusCode;
                 bool sentMessageOK = (RESTResponseHTTPStatusCode == System.Net.HttpStatusCode.OK);
+
+                //Persist the message sent to DB:
+                rMessageToSend.persistRESTMessageSent_toDB(RESTResponse.Content, RESTResponse.StatusCode.ToString());
 
                 if (sentMessageOK)
                 {
@@ -606,7 +609,7 @@ namespace MXitConnectionModule
             this.REST_AccessToken = "";
 
             logger.Debug(MethodBase.GetCurrentMethod().Name + "() Setting up REST authentication values (ClientID=" + aClientID + "), (ClientSecret=" + aClientSecret + ").");
-            Console.WriteLine(DateTime.Now.ToString() + "Setting up REST authentication values (ClientID=" + aClientID + "), (ClientSecret=" + aClientSecret + ").");
+            Console.WriteLine(DateTime.Now.ToString() + " Setting up REST authentication values (ClientID=" + aClientID + "), (ClientSecret=" + aClientSecret + ").");
 
             this.REST_ClientId = aClientID;
             this.REST_ClientSecret = aClientSecret;
@@ -828,7 +831,6 @@ namespace MXitConnectionModule
 
             logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
         }
-
 
     }
 }

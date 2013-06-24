@@ -16,6 +16,7 @@ using Newtonsoft;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 //using RestSharp.Authenticators;
+using MySql.Data.MySqlClient;
 
 
 namespace MXitConnectionModule
@@ -33,6 +34,7 @@ namespace MXitConnectionModule
         public bool Spool = true;
         public int SpoolTimeOut = 604800; //604800 = 7 days in seconds
         private int _ToCount = 0;
+        public int InternalReference; //Optional, used for tracking internal broadcast messages back to original message
 
         public RESTMessageToSend()
         {
@@ -158,5 +160,71 @@ namespace MXitConnectionModule
             return _ToCount;
         }
 
+        /* This method requires that you setup a sent table:
+         * 
+CREATE TABLE `tableprefix_rest_message_sent` (
+  `RestMessageSentOID_rms` bigint(20) NOT NULL AUTO_INCREMENT,
+  `InternalReference_rms` int(9) DEFAULT NULL,
+  `FromContactName_rms` varchar(255) DEFAULT NULL,
+  `Body_rms` varchar(1000) DEFAULT NULL,
+  `DateTimeSent_rms` datetime NOT NULL,
+  `To_rms` text CHARACTER SET latin1,
+  `ErrorResponse_rms` text CHARACTER SET latin1,
+  `ErrorResponseCode_rms` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`RestMessageSentOID_rms`),
+  KEY `INDEX_DATE` (`DateTimeSent_rms`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+         */
+        public bool persistRESTMessageSent_toDB(String RestResponseContent, String RestStatusCode)
+        {
+            bool success = false;
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - START");
+
+            using (MySqlConnection conn = new MySqlConnection(ConnectionConfig.connectionString_msgDB))
+            {
+                using (MySqlCommand command = conn.CreateCommand())
+                {
+                    try
+                    {
+                        command.CommandText = @"
+                                INSERT INTO " + ConnectionConfig.DBPrefix_msgDB + @"rest_message_sent
+                                (InternalReference_rms, FromContactName_rms, Body_rms, DateTimeSent_rms, To_rms, ErrorResponse_rms, ErrorResponseCode_rms) 
+                                VALUES (@InternalReference, @FromContactName, @Body, now(), @To, @ErrorResponse, @ErrorResponseCode)";
+
+                        command.Parameters.Clear();
+                        command.Parameters.AddWithValue("@FromContactName", this.From);
+                        command.Parameters.AddWithValue("@Body", this.Body);
+                        command.Parameters.AddWithValue("@To", this.To);
+                        command.Parameters.AddWithValue("@ErrorResponse", RestResponseContent);
+                        command.Parameters.AddWithValue("@ErrorResponseCode", RestStatusCode);
+
+                        //If we have set a internalReference then store it:
+                        if (this.InternalReference != null)
+                        {
+                            command.Parameters.AddWithValue("@InternalReference", this.InternalReference);
+                        } else {
+                            command.Parameters.AddWithValue("@InternalReference", null);
+                        }
+
+
+                        conn.Open();
+                        command.ExecuteNonQuery();
+
+                        success = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("[" + MethodBase.GetCurrentMethod().Name + " - Problem persisting rest message sent: " + ex.ToString());
+                        success = false;
+                        return success;
+                    } //catch
+                }//using - command
+            }//using - connection
+
+            logger.Debug(MethodBase.GetCurrentMethod().Name + "() - END");
+
+            return success;
+        }
     }
 }

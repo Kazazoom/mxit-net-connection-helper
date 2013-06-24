@@ -1,0 +1,6 @@
+﻿    <add key="DatabaseName_msgDB" value="mydb" />
+    <add key="DatabaseUser_msgDB" value="user1" />
+    <add key="DatabasePass_msgDB" value="password" />
+    <add key="DatabaseServer_msgDB" value="my.hostname.com" />
+    <add key="DBMaxPoolSize_msgDB" value="5" />
+    <add key="DBPrefix_msgDB" value="message_" />

@@ -42,6 +42,9 @@
     <Reference Include="MXitExternalAppSDK">
       <HintPath>..\lib\MXitExternalAppSDK.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\lib\mysql6.3.5\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -62,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionConfig.cs" />
+    <Compile Include="RESTMessageLink.cs" />
     <Compile Include="ThreadPool_SendRESTMessage.cs" />
     <Compile Include="MxitModel\Availability.cs" />
     <Compile Include="MxitModel\ContactType.cs" />
@@ -127,6 +131,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="exampleConfigValues.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
