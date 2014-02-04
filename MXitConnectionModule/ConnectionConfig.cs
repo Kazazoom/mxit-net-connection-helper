@@ -103,32 +103,32 @@ namespace MXitConnectionModule
                 DBPrefix_msgDB = temp;
             }
 
-            tempDBName_msgDB = ConfigurationManager.AppSettings["DatabaseName_msgDB"];
-            if (!string.IsNullOrEmpty(tempDBName_msgDB))
+            temp = ConfigurationManager.AppSettings["DatabaseName_msgDB"];
+            if (!string.IsNullOrEmpty(temp))
             {
 
-                tempDBName_msgDB = tempDBName_msgDB.ToLowerInvariant();
+                tempDBName_msgDB = temp;
                 logger.Debug("[Controller:Controller()] DatabaseName (msgDB):" + tempDBName_msgDB);
             }
 
-            tempDBUser_msgDB = ConfigurationManager.AppSettings["DatabaseUser_msgDB"];
-            if (!string.IsNullOrEmpty(tempDBUser_msgDB))
+            temp = ConfigurationManager.AppSettings["DatabaseUser_msgDB"];
+            if (!string.IsNullOrEmpty(temp))
             {
-                tempDBUser_msgDB = tempDBUser_msgDB.ToLowerInvariant();
+                tempDBUser_msgDB = temp;
                 logger.Debug("[Controller:Controller()] DatabaseUser (msgDB):" + tempDBUser_msgDB);
             }
 
-            tempDBPass_msgDB = ConfigurationManager.AppSettings["DatabasePass_msgDB"];
-            if (!string.IsNullOrEmpty(tempDBPass_msgDB))
+            temp = ConfigurationManager.AppSettings["DatabasePass_msgDB"];
+            if (!string.IsNullOrEmpty(temp))
             {
-                tempDBPass_msgDB = tempDBPass_msgDB.ToLowerInvariant();
+                tempDBPass_msgDB = temp;
                 logger.Debug("[Controller:Controller()] DatabasePassword (msgDB):" + tempDBPass_msgDB);
             }
 
-            tempDBServer_msgDB = ConfigurationManager.AppSettings["DatabaseServer_msgDB"];
-            if (!string.IsNullOrEmpty(tempDBServer_msgDB))
+            temp = ConfigurationManager.AppSettings["DatabaseServer_msgDB"];
+            if (!string.IsNullOrEmpty(temp))
             {
-                tempDBServer_msgDB = tempDBServer_msgDB.ToLowerInvariant();
+                tempDBServer_msgDB = temp;
                 logger.Debug("[Controller:Controller()] DatabaseServer (msgDB):" + tempDBServer_msgDB);
             }
 

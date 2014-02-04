@@ -87,22 +87,25 @@ namespace MXitConnectionModule
                         matchText = matchText.Replace("[", "");
                         matchText = matchText.Replace("]", "");
 
-                        String[] linkParts = matchText.Split(new char[] { '|' }, 2);
+                        String[] linkParts = matchText.Split(new char[] { '|' }, 3);
 
                         string linkText = linkParts[0];
                         string linkTarget = linkParts[1];
+
+                        Boolean isShowInTempWindow = true;
+                        if (linkParts.Length > 2)
+                            isShowInTempWindow = (linkParts[2].ToLower() == "true");
                         
                         //check that the links have all the necessary parts
                         if ((linkText.Length > 0) && (linkTarget.Length > 0))
                         {
-                            bool linkTempContact = true;
                             //if the sender of the message matches the target link, don't open link as a new contact
                             if (msgFrom == linkTarget)
                             {
-                                linkTempContact = false;
+                                isShowInTempWindow = false;
                             }
 
-                            RESTMessageLink appLink = new RESTMessageLink(linkText, linkTarget, linkTempContact);
+                            RESTMessageLink appLink = new RESTMessageLink(linkText, linkTarget, isShowInTempWindow);
                             Links.Add(appLink);
 
                             //replace the link with the placeholder text: {n}

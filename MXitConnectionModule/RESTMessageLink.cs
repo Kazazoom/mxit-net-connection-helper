@@ -12,10 +12,10 @@ namespace MXitConnectionModule
         public string TargetService;
         public string Text;
 
-        public RESTMessageLink(string linkText, string linkTarget, bool linkTempContact = true) {
+        public RESTMessageLink(string linkText, string linkTarget, bool isShowInTempWindow = true) {
             Text = linkText;
             TargetService = linkTarget;
-            CreateTemporaryContact = linkTempContact;
+            CreateTemporaryContact = isShowInTempWindow;
         }
     }
 }
