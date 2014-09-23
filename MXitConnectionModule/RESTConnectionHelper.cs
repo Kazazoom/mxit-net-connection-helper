@@ -237,7 +237,10 @@ namespace MXitConnectionModule
                 REST_SendMessageRequest.AddHeader("Accept", "application/json");
                 REST_SendMessageRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
 
-                REST_SendMessageRequest.AddBody(rMessageToSend);
+                //create object that will be serialized into the request message body
+                RESTMinimalMessageToSend restMessage = new RESTMinimalMessageToSend(rMessageToSend);
+
+                REST_SendMessageRequest.AddBody(restMessage);
 
                 //Start - Temporary Code
                 //TODO: REMOVE ONCE MXIT MESSAGE PARSING IS FIXED
@@ -330,7 +333,10 @@ namespace MXitConnectionModule
                 RESTRequest.AddHeader("Accept", "application/json");
                 RESTRequest.Resource = "/message/send/"; //Resource points to the method of the API we want to access
 
-                RESTRequest.AddBody(rMessageToSend);
+                //create object that will be serialized into the request message body
+                RESTMinimalMessageToSend restMessage = new RESTMinimalMessageToSend(rMessageToSend);
+
+                RESTRequest.AddBody(restMessage);
 
                 logger.Debug(MethodBase.GetCurrentMethod().Name + "() - Executing RESTRequest (SendMessage)");
                 if (logger.IsDebugEnabled) Console.WriteLine(DateTime.Now.ToString() + " Executing RESTRequest (SendMessage)");
